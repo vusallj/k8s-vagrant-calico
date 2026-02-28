@@ -46,3 +46,5 @@ sudo kubeadm join <command>
 11. Verify
 bash
 kubectl get nodes -o wide
+
+12. Vagrant up - to run VMs and Vagrant halt - shotdown VMs but keep files
