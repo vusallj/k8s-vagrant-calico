@@ -17,6 +17,8 @@ cd k8s-vagrant-calico
 ```bash
 vagrant up
 ```
+( run below commands on each nodes)
+
 5. Turn off swapp
 ```bash
 sudo swapoff -a sudo sed -i '/ swap / s/^/#/' /etc/fstab cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf overlay br_netfilter EOF
