@@ -1,0 +1,2 @@
+swapoff -a
+sudo sed -i '/ swap / s/^/#/' /etc/fstab
