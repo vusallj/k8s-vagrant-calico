@@ -8,42 +8,54 @@ Download from: https://www.virtualbox.org/wiki/Downloads
 2. Install Vagrant
 Download from: https://developer.hashicorp.com/vagrant/downloads
 
-3. Clone your repo
+3. Clone repo
 ```bash
 git clone https://github.com/vusallj/k8s-vagrant-calico.git
 cd k8s-vagrant-calico
 ```
-5. Start the VMs
+4. Start the VMs
 ```bash
 vagrant up
 ```
 This runs all provisioning scripts on all nodes.
+- creates the controlplane VM
+- creates node01 and node02
+- installs containerd
+- installs kubeadm, kubelet, kubectl
+- configures networking
+- prepares the OS for Kubernetes
 
-7. SSH into controlplane
+  
+5. SSH into the controlplane Connect to the master node to initialize Kubernetes.
 ```bash
 vagrant ssh controlplane
 ```
-8. Initialize Kubernetes (controlplane only)
+6. Initialize Kubernetes (controlplane only)
 ```bash
 sudo kubeadm init \
   --apiserver-advertise-address=192.168.56.200 \
   --pod-network-cidr=192.168.0.0/16
 ```
-9. Configure kubectl (controlplane only)
+7. Configure kubectl (controlplane only). This allows to run kubectl commands from inside the controlplane VM.
 ```bash
 mkdir -p $HOME/.kube
 sudo cp /etc/kubernetes/admin.conf $HOME/.kube/config
 sudo chown $(id -u):$(id -g) $HOME/.kube/config
 ```
-10. Install Calico (controlplane only)
+8. Install Calico CNI (controlplane only). This sets up pod networking and allows nodes to become Ready.
 ```bash
 kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.27.2/manifests/calico.yaml
 ```
-11. Generate join command (controlplane only)
+  8.1. Calico CNI pods takes sometime to be fully run. Pod status can be checked:
+        ```bash
+        kubectl get pods -n kube-system
+        ```
+        
+8. Generate join command (controlplane only). This produces the token and hash needed for workers to join the cluster.
 ```bash
 sudo kubeadm token create --print-join-command
 ```
-12. Join workers
+10. SSH into node01 and node02 and run the join command This connects the workers to the controlplane.
 ```bash
 vagrant ssh node01
 sudo kubeadm join <command>
@@ -52,7 +64,7 @@ sudo kubeadm join <command>
 vagrant ssh node02
 sudo kubeadm join <command>
 ```
-11. Verify (wait for few minutes untill calico pods start working"
+11. Verify (wait for few minutes untill calico pods start working)
 ```bash
 kubectl get nodes -o wide
 ```
