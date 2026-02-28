@@ -46,7 +46,7 @@ sudo chown $(id -u):$(id -g) $HOME/.kube/config
 ```bash
 kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.27.2/manifests/calico.yaml
 ```
-9 Check pods status. Calico CNI pods takes sometime to be fully run. 
+9. Check pods status. Calico CNI pods takes sometime to be fully run. 
 ```bash
 kubectl get pods -n kube-system
 ```
