@@ -17,19 +17,49 @@ cd k8s-vagrant-calico
 ```bash
 vagrant up
 ```
-This runs all provisioning scripts on all nodes.
-- creates the controlplane VM
-- creates node01 and node02
-- installs containerd
-- installs kubeadm, kubelet, kubectl
-- configures networking
-- prepares the OS for Kubernetes
-
-  
-5. SSH into the controlplane Connect to the master node to initialize Kubernetes.
+5. Turn off swapp
 ```bash
-vagrant ssh controlplane
+sudo swapoff -a sudo sed -i '/ swap / s/^/#/' /etc/fstab cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf overlay br_netfilter EOF
 ```
+
+6.Load kernel modules
+```bash
+sudo modprobe overlay sudo modprobe br_netfilter cat <<EOF | sudo tee /etc/sysctl.d/k8s.conf net.bridge.bridge-nf-call-iptables = 1 net.bridge.bridge-nf-call-ip6tables = 1 net.ipv4.ip_forward = 1 EOF sudo sysctl --system
+```
+
+7. Install containerd
+```bash
+sudo apt-get update
+sudo apt-get install -y containerd
+
+sudo mkdir -p /etc/containerd
+containerd config default | sudo tee /etc/containerd/config.toml >/dev/null
+
+# Use systemd cgroup driver
+sudo sed -i 's/SystemdCgroup = false/SystemdCgroup = true/' /etc/containerd/config.toml
+
+sudo systemctl restart containerd
+sudo systemctl enable containerd
+```
+
+8. Install kubeadm
+```bash
+sudo apt-get update
+sudo apt-get install -y apt-transport-https ca-certificates curl
+
+sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg \
+  https://pkgs.k8s.io/core:/stable:/v1.30/deb/Release.key
+
+echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] \
+https://pkgs.k8s.io/core:/stable:/v1.30/deb/ /" | \
+sudo tee /etc/apt/sources.list.d/kubernetes.list
+
+sudo apt-get update
+sudo apt-get install -y kubelet kubeadm kubectl
+sudo apt-mark hold kubelet kubeadm kubectl
+```
+
+
 6. Initialize Kubernetes (controlplane only)
 ```bash
 sudo kubeadm init \
