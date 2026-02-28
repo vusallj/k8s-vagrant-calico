@@ -19,7 +19,7 @@ vagrant up
 ```
 ( run below commands on each nodes)
 
-5. Turn off swapp
+5. Disable swapp
 ```bash
 sudo swapoff -a
 sudo sed -i '/ swap / s/^/#/' /etc/fstab
