@@ -10,7 +10,7 @@ Download from: https://developer.hashicorp.com/vagrant/downloads
 
 3. Clone your repo
 ```bash
-git clone https://github.com/<your-username>/k8s-vagrant-calico.git
+git clone https://github.com/vusallj/k8s-vagrant-calico.git
 cd k8s-vagrant-calico
 ```
 5. Start the VMs
