@@ -1,39 +1,48 @@
 #!/bin/bash
+
+# --- SELF-HEALING CRLF FIX ---
+# If the script contains Windows CRLF, convert itself to LF and re-run
+if grep -q $'\r' "$0"; then
+    echo "Fixing Windows CRLF line endings..."
+    sed -i 's/\r$//' "$0"
+    exec bash "$0" "$@"
+fi
+
 set -e
 
-# Update package index
+echo "Updating packages..."
 sudo apt-get update
 
-# Install required packages
+echo "Installing dependencies..."
 sudo apt-get install -y ca-certificates curl gnupg lsb-release
 
-# Create keyring directory
+echo "Creating keyring directory..."
 sudo mkdir -p /etc/apt/keyrings
 
-# Add Docker GPG key
+echo "Adding Docker GPG key..."
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
   | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
 
-# Add Docker repository
+echo "Adding Docker repository..."
 echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
 https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" \
   | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
-# Update package index again
+echo "Updating package index..."
 sudo apt-get update
 
-# Install containerd
+echo "Installing containerd..."
 sudo apt-get install -y containerd.io
 
-# Create containerd config directory
+echo "Generating containerd config..."
 sudo mkdir -p /etc/containerd
-
-# Generate default config
 sudo containerd config default | sudo tee /etc/containerd/config.toml > /dev/null
 
-# Enable systemd cgroup driver
+echo "Enabling systemd cgroup driver..."
 sudo sed -i 's/SystemdCgroup = false/SystemdCgroup = true/' /etc/containerd/config.toml
 
-# Restart containerd
+echo "Restarting containerd..."
 sudo systemctl restart containerd
 sudo systemctl enable containerd
+
+echo "Containerd installation complete."
