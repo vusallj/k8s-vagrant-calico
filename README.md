@@ -46,16 +46,16 @@ sudo chown $(id -u):$(id -g) $HOME/.kube/config
 ```bash
 kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.27.2/manifests/calico.yaml
 ```
-  8.1. Calico CNI pods takes sometime to be fully run. Pod status can be checked:
-        ```bash
-        kubectl get pods -n kube-system
-        ```
+9 Check pods status. Calico CNI pods takes sometime to be fully run. 
+```bash
+kubectl get pods -n kube-system
+```
         
-8. Generate join command (controlplane only). This produces the token and hash needed for workers to join the cluster.
+10. Generate join command (controlplane only). This produces the token and hash needed for workers to join the cluster.
 ```bash
 sudo kubeadm token create --print-join-command
 ```
-10. SSH into node01 and node02 and run the join command This connects the workers to the controlplane.
+11. SSH into node01 and node02 and run the join command This connects the workers to the controlplane.
 ```bash
 vagrant ssh node01
 sudo kubeadm join <command>
@@ -64,12 +64,12 @@ sudo kubeadm join <command>
 vagrant ssh node02
 sudo kubeadm join <command>
 ```
-11. Verify (wait for few minutes untill calico pods start working)
+12. Verify (wait for few minutes untill calico pods start working)
 ```bash
 kubectl get nodes -o wide
 ```
 
-12. To run VMs
+13. To run VMs
 ```bash
 vagrant up
 ```
